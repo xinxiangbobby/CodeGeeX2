@@ -1,20 +1,26 @@
 ![](resources/codegeex_logo.png)
 
 <p align="center">
-    🏠 <a href="https://codegeex.cn" target="_blank">主页</a>｜🛠 插件 <a href="https://marketplace.visualstudio.com/items?itemName=aminer.codegeex" target="_blank">VS Code</a>, <a href="https://plugins.jetbrains.com/plugin/20587-codegeex" target="_blank">Jetbrains</a>｜🤗 <a href="https://huggingface.co/THUDM/codegeex2-6b" target="_blank">HF Repo</a>｜📄 <a href="https://arxiv.org/abs/2303.17568" target="_blank">论文</a>｜👋 加入<a href="resources/wechat.md"target="_blank">微信开发者交流群</a> 
+    🏠 <a href="https://codegeex.cn" target="_blank">主页</a>｜🛠 插件 <a href="https://marketplace.visualstudio.com/items?itemName=aminer.codegeex" target="_blank">VS Code</a>, <a href="https://plugins.jetbrains.com/plugin/20587-codegeex" target="_blank">Jetbrains</a>｜🤗 <a href="https://huggingface.co/THUDM/codegeex2-6b" target="_blank">模型下载</a>｜📄 <a href="https://arxiv.org/abs/2303.17568" target="_blank">论文</a>｜👋 加入<a href="resources/wechat.md"target="_blank">微信开发者交流群</a>
 </p>
 
-Read this in [English](README_EN.md)
+Read this in [English](README_EN.md)<br>
+[日本語](README_JA.md)で読む<br>
+Lire en [Français](README_FR.md)
 
 # CodeGeeX2: 更强大的多语言代码生成模型
 
-CodeGeeX2 是多语言代码生成模型 [CodeGeeX](https://github.com/THUDM/CodeGeeX) ([KDD’23](https://arxiv.org/abs/2303.17568)) 的第二代模型。不同于一代 CodeGeeX（完全在国产华为昇腾芯片平台训练） ，CodeGeeX2 是基于 [ChatGLM2](https://github.com/THUDM/ChatGLM2-6B) 架构注入代码实现，得益于 ChatGLM2 的更优性能，CodeGeeX2 在多项指标上取得性能提升（+107% > CodeGeeX；仅60亿参数即超过150亿参数的 StarCoder-15B 近10%），更多特性包括：
+CodeGeeX2 是多语言代码生成模型 [CodeGeeX](https://github.com/THUDM/CodeGeeX) ([KDD’23](https://arxiv.org/abs/2303.17568)) 的第二代模型。不同于一代 CodeGeeX（完全在国产华为昇腾芯片平台训练） ，CodeGeeX2 是基于 [ChatGLM2](https://github.com/THUDM/ChatGLM2-6B) 架构加入代码预训练实现，得益于 ChatGLM2 的更优性能，CodeGeeX2 在多项指标上取得性能提升（+107% > CodeGeeX；仅60亿参数即超过150亿参数的 StarCoder-15B 近10%），更多特性包括：
 
 * **更强大的代码能力**：基于 ChatGLM2-6B 基座语言模型，CodeGeeX2-6B 进一步经过了 600B 代码数据预训练，相比一代模型，在代码能力上全面提升，[HumanEval-X](https://huggingface.co/datasets/THUDM/humaneval-x) 评测集的六种编程语言均大幅提升 (Python +57%, C++ +71%, Java +54%, JavaScript +83%, Go +56%, Rust +321\%)，在Python上达到 35.9\% 的 Pass@1 一次通过率，超越规模更大的 StarCoder-15B。
 * **更优秀的模型特性**：继承 ChatGLM2-6B 模型特性，CodeGeeX2-6B 更好支持中英文输入，支持最大 8192 序列长度，推理速度较一代 CodeGeeX-13B 大幅提升，量化后仅需6GB显存即可运行，支持轻量级本地化部署。
 * **更全面的AI编程助手**：CodeGeeX插件（[VS Code](https://marketplace.visualstudio.com/items?itemName=aminer.codegeex), [Jetbrains](https://plugins.jetbrains.com/plugin/20587-codegeex)）后端升级，支持超过100种编程语言，新增上下文补全、跨文件补全等实用功能。结合 Ask CodeGeeX 交互式AI编程助手，支持中英文对话解决各种编程问题，包括且不限于代码解释、代码翻译、代码纠错、文档生成等，帮助程序员更高效开发。
-* **更开放的协议**：CodeGeeX2-6B 权重对学术研究完全开放，填写[问卷](https://open.bigmodel.cn/mla/form)申请商业使用。
+* **更开放的协议**：CodeGeeX2-6B 权重对学术研究完全开放，填写[登记表](https://open.bigmodel.cn/mla/form?mcode=CodeGeeX2-6B)申请商业使用。
 
+## 使用教程
+
+* [快速开始](#快速开始)
+* [推理教程（多卡推理，加速推理，多平台推理等）](docs/zh/inference_zh.md)
 
 ## AI编程助手
 
@@ -34,13 +40,13 @@ model = AutoModel.from_pretrained("THUDM/codegeex2-6b", trust_remote_code=True, 
 model = model.eval()
 
 # remember adding a language tag for better performance
-prompt = "# language: python\n# write a bubble sort function\n"
+prompt = "# language: Python\n# write a bubble sort function\n"
 inputs = tokenizer.encode(prompt, return_tensors="pt").to(model.device)
 outputs = model.generate(inputs, max_length=256, top_k=1)
 response = tokenizer.decode(outputs[0])
 
 >>> print(response)
-# language: python
+# language: Python
 # write a bubble sort function
 
 
@@ -52,8 +58,44 @@ def bubble_sort(list):
     return list
 
 
-print(bubble_sort([5, 2, 4, 6, 1, 3]))
+print(bubble_sort([5, 2, 1, 8, 4]))
 ```
+
+启动 Gradio DEMO：
+```
+python ./demo/run_demo.py
+
+usage: run_demo.py [-h] [--model-path MODEL_PATH] [--example-path EXAMPLE_PATH] [--quantize QUANTIZE]
+                   [--fastllm] [--n-gpus N_GPUS] [--gpu GPU] [--cpu] [--username yourname] [--password yourpassword]
+                   [--port PORT] [--listen]
+```
+
+❗️请注意：
+* CodeGeeX2-6B 是一个基座代码生成模型，不具备聊天能力。请前往插件中体验更全面的 Ask CodeGeeX 聊天功能。
+* 在使用 CodeGeeX2-6B 的补全功能时，输入prompt需要遵循特定的格式以获得最好的效果。比如需要在开头加入编程语言标签（`# language: Python`，请查看[完整语言列表](https://github.com/THUDM/CodeGeeX2/blob/main/evaluation/utils.py#L14)），以注释的形式写prompt等。参考`run_demo.py`中的处理。
+* 如果显卡不支持`bfloat16`格式，将会输出错误的内容，需要将模型转换成`float16`格式：
+    ```python
+    model = AutoModel.from_pretrained("THUDM/codegeex2-6b", trust_remote_code=True).half().cuda()
+    ```
+* 如果需要使用多显卡加载模型,可以将以下代码：
+    ```python
+    tokenizer = AutoTokenizer.from_pretrained("THUDM/codegeex2-6b", trust_remote_code=True)
+    model = AutoModel.from_pretrained("THUDM/codegeex2-6b", trust_remote_code=True, device='cuda')
+    model = model.eval()
+    ```
+    替换为
+
+    ```python
+    def get_model():
+        tokenizer = AutoTokenizer.from_pretrained("THUDM/codegeex2-6b", trust_remote_code=True)
+        from gpus import load_model_on_gpus
+        # gpus文件在demo文件夹中
+        model = load_model_on_gpus("THUDM/codegeex2-6b", num_gpus=2)
+        model = model.eval()
+        return tokenizer, model
+
+    tokenizer, model = get_model()
+    ```
 
 ## 代码能力评测
 
@@ -126,7 +168,7 @@ CodeGeeX2 与上一代相比，对部署更加友好。得益于使用 Multi-Que
 
 ## 协议
 
-本仓库的代码依照 [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0) 协议开源，模型的权重的使用则需要遵循 [Model License](MODEL_LICENSE)。CodeGeeX2-6B 权重对学术研究完全开放，填写[问卷](https://open.bigmodel.cn/mla/form)申请商业使用。
+本仓库的代码依照 [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0) 协议开源，模型的权重的使用则需要遵循 [Model License](MODEL_LICENSE)。CodeGeeX2-6B 权重对学术研究完全开放，填写[登记表](https://open.bigmodel.cn/mla/form?mcode=CodeGeeX2-6B)申请商业使用。
 
 
 ## 引用
@@ -135,7 +177,7 @@ CodeGeeX2 与上一代相比，对部署更加友好。得益于使用 Multi-Que
 
 ```
 @inproceedings{zheng2023codegeex,
-      title={CodeGeeX: A Pre-Trained Model for Code Generation with Multilingual Evaluations on HumanEval-X}, 
+      title={CodeGeeX: A Pre-Trained Model for Code Generation with Multilingual Evaluations on HumanEval-X},
       author={Qinkai Zheng and Xiao Xia and Xu Zou and Yuxiao Dong and Shan Wang and Yufei Xue and Zihan Wang and Lei Shen and Andi Wang and Yang Li and Teng Su and Zhilin Yang and Jie Tang},
       booktitle={KDD},
       year={2023}

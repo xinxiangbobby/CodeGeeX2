@@ -8,7 +8,9 @@
     👋 Join our <a href="https://discord.gg/8gjHdkmAN6" target="_blank">Discord</a>, <a href="https://join.slack.com/t/codegeexworkspace/shared_invite/zt-1s118ffrp-mpKKhQD0tKBmzNZVCyEZLw" target="_blank">Slack</a>, <a href="https://t.me/+IipIayJ32B1jOTg1" target="_blank">Telegram</a>, <a href="resources/wechat.md"target="_blank">WeChat</a>
 </p>
 
-查看[中文版](README.md)
+查看[中文版](README.md)<br>
+[日本語](README_JA.md)で読む<br>
+Lire en [Français](README_FR.md)
 
 # CodeGeeX2: A More Powerful Multilingual Code Generation Model
 
@@ -17,7 +19,7 @@ CodeGeeX2 is the second-generation model of the multilingual code generation mod
 * **More Powerful Coding Capabilities**: Based on the ChatGLM2-6B model, CodeGeeX2-6B has been further pre-trained on 600B code tokens, which has been comprehensively improved in coding capability compared to the first-generation. On the [HumanEval-X](https://huggingface.co/datasets/THUDM/humaneval-x) benchmark, all six languages have been significantly improved (Python +57%, C++ +71%, Java +54%, JavaScript +83%, Go +56%, Rust +321\%), and in Python it reached 35.9% of Pass@1 one-time pass rate, surpassing the larger StarCoder-15B.
 * **More Useful Features**: Inheriting the ChatGLM2-6B model features, CodeGeeX2-6B better supports both Chinese and English prompts, maximum 8192 sequence length, and the inference speed is significantly improved compared to the first-generation. After quantization, it only needs 6GB of GPU memory for inference, thus supports lightweight local deployment.
 * **Comprehensive AI Coding Assistant**: The backend of CodeGeeX plugin ([VS Code](https://marketplace.visualstudio.com/items?itemName=aminer.codegeex), [Jetbrains](https://plugins.jetbrains.com/plugin/20587-codegeex)) is upgraded, supporting 100+ programming languages, and adding practical functions such as infilling and cross-file completion. Combined with the "Ask CodeGeeX" interactive AI coding assistant, it can be used to solve various programming problems via Chinese or English dialogue, including but not limited to code summarization, code translation, debugging, and comment generation, which helps increasing the efficiency of developpers.
-* **Open Liscense**: CodeGeeX2-6B weights are fully open to academic research, and please apply for commercial use by filling in the [application form](https://open.bigmodel.cn/mla/form).
+* **Open Liscense**: CodeGeeX2-6B weights are fully open to academic research, and please apply for commercial use by filling in the [registrition form](https://open.bigmodel.cn/mla/form?mcode=CodeGeeX2-6B).
 
 
 ## AI Coding Assistant
@@ -37,13 +39,13 @@ model = AutoModel.from_pretrained("THUDM/codegeex2-6b", trust_remote_code=True, 
 model = model.eval()
 
 # remember adding a language tag for better performance
-prompt = "# language: python\n# write a bubble sort function\n"
+prompt = "# language: Python\n# write a bubble sort function\n"
 inputs = tokenizer.encode(prompt, return_tensors="pt").to(model.device)
 outputs = model.generate(inputs, max_length=256, top_k=1)
 response = tokenizer.decode(outputs[0])
 
 >>> print(response)
-# language: python
+# language: Python
 # write a bubble sort function
 
 
@@ -55,8 +57,40 @@ def bubble_sort(list):
     return list
 
 
-print(bubble_sort([5, 2, 4, 6, 1, 3]))
+print(bubble_sort([5, 2, 1, 8, 4]))
 ```
+
+Launch Gradio DEMO:
+```
+python ./demo/run_demo.py
+```
+
+❗️Attention:
+* CodeGeeX2 is a base model, which is not instruction-tuned for chatting. It can do tasks like code completion/translation/explaination. To try the instruction-tuned version in CodeGeeX plugins ([VS Code](https://marketplace.visualstudio.com/items?itemName=aminer.codegeex), [Jetbrains](https://plugins.jetbrains.com/plugin/20587-codegeex)).
+* Programming languages can be controled by adding `language tag`, e.g., `# language: Python`. The format should be respected to ensure performance, full list can be found [here](https://github.com/THUDM/CodeGeeX2/blob/main/evaluation/utils.py#L14). Please write comments under the format of the selected programming language to achieve better results.
+* If the GPU doesn't support `bfloat16` format, it will cause incorrect output. Please convert the model to `float16` format:
+    ```python
+    model = AutoModel.from_pretrained("THUDM/codegeex2-6b", trust_remote_code=True).half().cuda()
+    ```
+* If you need to use Multiple GPUs to load the model, you can use the following code:
+    ```python
+    tokenizer = AutoTokenizer.from_pretrained("THUDM/codegeex2-6b", trust_remote_code=True)
+    model = AutoModel.from_pretrained("THUDM/codegeex2-6b", trust_remote_code=True, device='cuda')
+    model = model.eval()
+    ```
+    Replace with
+
+    ```python
+    def get_model():
+        tokenizer = AutoTokenizer.from_pretrained("THUDM/codegeex2-6b", trust_remote_code=True)
+        from gpus import load_model_on_gpus
+        # The "gpus" file is located in the demo folder
+        model = load_model_on_gpus("THUDM/codegeex2-6b", num_gpus=2)
+        model = model.eval()
+        return tokenizer, model
+
+    tokenizer, model = get_model()
+    ```
 
 ## Evaluation
 
@@ -129,7 +163,7 @@ CodeGeeX2 is more friendly to deployment than the previous generation. Thanks to
 
 ## License
 
-The code in this repository is open source under the [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0) license. The model weights are licensed under the [Model License](MODEL_LICENSE). CodeGeeX2-6B weights are open for academic research, and please apply for commercial use by filling in the [application form](https://open.bigmodel.cn/mla/form).
+The code in this repository is open source under the [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0) license. The model weights are licensed under the [Model License](MODEL_LICENSE). CodeGeeX2-6B weights are open for academic research, and please apply for commercial use by filling in the [registration form](https://open.bigmodel.cn/mla/form?mcode=CodeGeeX2-6B).
 
 
 ## Citation
@@ -138,7 +172,7 @@ If you find our work helpful, please feel free to cite the following paper:
 
 ```
 @inproceedings{zheng2023codegeex,
-      title={CodeGeeX: A Pre-Trained Model for Code Generation with Multilingual Evaluations on HumanEval-X}, 
+      title={CodeGeeX: A Pre-Trained Model for Code Generation with Multilingual Evaluations on HumanEval-X},
       author={Qinkai Zheng and Xiao Xia and Xu Zou and Yuxiao Dong and Shan Wang and Yufei Xue and Zihan Wang and Lei Shen and Andi Wang and Yang Li and Teng Su and Zhilin Yang and Jie Tang},
       booktitle={KDD},
       year={2023}
